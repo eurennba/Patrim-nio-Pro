@@ -1,5 +1,9 @@
 {
   "name": "PatrimônioPro",
   "description": "A financial empowerment platform designed to transform financial fear into clarity through 15-minute training sessions and a real-time Confidence Score (Nota de Confiança).",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
 }

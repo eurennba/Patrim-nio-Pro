@@ -24,7 +24,9 @@ const App: React.FC = () => {
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('patrimonio_pro_session', JSON.stringify(currentUser));
-      localStorage.setItem(`user_${currentUser.email}`, JSON.stringify(currentUser));
+      if (currentUser.email !== 'guest@patrimoniopro.com') {
+        localStorage.setItem(`user_${currentUser.email}`, JSON.stringify(currentUser));
+      }
     } else {
       localStorage.removeItem('patrimonio_pro_session');
     }
@@ -50,7 +52,6 @@ const App: React.FC = () => {
       const nextStats = typeof updates === 'function' ? updates(prev.stats) : { ...prev.stats, ...updates };
       
       const { clarity, consistency, diversification, progress, education } = nextStats.confidenceScore;
-      // Recalculate total with safe limits
       nextStats.confidenceScore.total = Math.min(100, 
         Math.min(30, clarity) + 
         Math.min(25, consistency) + 
@@ -69,7 +70,9 @@ const App: React.FC = () => {
 
   const handleDeleteAccount = () => {
     if (currentUser) {
-      localStorage.removeItem(`user_${currentUser.email}`);
+      if (currentUser.email !== 'guest@patrimoniopro.com') {
+        localStorage.removeItem(`user_${currentUser.email}`);
+      }
       localStorage.removeItem('patrimonio_pro_session');
       setCurrentUser(null);
       setCurrentView('dashboard');
@@ -138,8 +141,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen flex font-inter transition-colors duration-300 ${theme === 'dark' ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'} selection:bg-amber-100 dark:selection:bg-amber-900/40 selection:text-amber-900 dark:selection:text-amber-100`}>
-      {/* Desktop Sidebar */}
+    <div className={`min-h-screen flex font-sans transition-colors duration-300 ${theme === 'dark' ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'} selection:bg-amber-100 dark:selection:bg-amber-900/40 selection:text-amber-900 dark:selection:text-amber-100`}>
       <Sidebar 
         user={currentUser} 
         onLogout={handleLogout} 
@@ -150,9 +152,7 @@ const App: React.FC = () => {
         onViewChange={setCurrentView}
       />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-colors duration-300 bg-slate-50 dark:bg-black">
-        {/* Mobile Header */}
         <header className="md:hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-white/10 h-20 flex items-center justify-between px-6 sticky top-0 z-40 transition-colors">
            <div className="flex items-baseline gap-2" onClick={() => setCurrentView('dashboard')}>
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400 tracking-tight">Patrimônio</span>
@@ -195,7 +195,6 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Training Modal */}
       {isTrainingOpen && (
         <TrainingSession 
           onComplete={handleTrainingComplete} 
@@ -204,7 +203,6 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Challenge Modal */}
       {isChallengeOpen && (
         <InvestmentChallenge 
           onComplete={handleChallengeComplete}
@@ -213,7 +211,6 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Bottom Mobile Navigation */}
       <nav className="fixed bottom-6 left-6 right-6 bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-white/10 md:hidden flex justify-around items-center h-20 px-4 z-40 rounded-[2.5rem] shadow-2xl transition-all duration-300">
         <button 
           onClick={() => setCurrentView('dashboard')}

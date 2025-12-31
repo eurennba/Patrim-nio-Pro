@@ -2,99 +2,93 @@
 import { GoogleGenAI } from "@google/genai";
 import { UserStats } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Helper to get an updated AI instance
+const getAi = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getFinancialDiscoveryMessage = async (stats: UserStats): Promise<string> => {
+  const ai = getAi();
   const accessible = (stats.accessibleMoney.bank1 || 0) + (stats.accessibleMoney.bank2 || 0) + (stats.accessibleMoney.physical || 0);
   const invested = (stats.investments.savings || 0) + (stats.investments.tesouro || 0) + (stats.investments.stocks || 0) + (stats.investments.others || 0);
   const total = accessible + invested;
 
   const prompt = `
-    Você é um coach financeiro empático e motivador do app "PatrimônioPro".
-    Sua missão é dar um feedback sobre a primeira "foto financeira" do usuário para eliminar o medo e gerar clareza.
+    Você é um coach financeiro de elite do app "PatrimônioPro".
+    Sua missão é dar um feedback de alto nível sobre a primeira "foto financeira" do usuário.
 
-    Dados do Usuário:
+    Dados:
     - Patrimônio Total: R$ ${total.toLocaleString('pt-BR')}
-    - Dinheiro Acessível (Liquidez): R$ ${accessible.toLocaleString('pt-BR')}
-    - Total Investido: R$ ${invested.toLocaleString('pt-BR')}
+    - Liquidez: R$ ${accessible.toLocaleString('pt-BR')}
+    - Investido: R$ ${invested.toLocaleString('pt-BR')}
     
-    Regras:
-    1. Seja CURTO (máximo 3 frases).
-    2. Use um tom de comemoração, nunca de crítica.
-    3. Se o investimento for baixo (menos de R$ 1000), foque em "ter uma base sólida para começar".
-    4. Se for alto mas disperso, foque na "oportunidade de organizar e potencializar".
-    5. Idioma: Português do Brasil.
+    Diretrizes:
+    1. Seja conciso (máximo 3 frases).
+    2. Tom profissional, inspirador e visionário.
+    3. Fale sobre a clareza como o primeiro degrau para a liberdade.
+    4. Idioma: Português do Brasil.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
-        temperature: 0.8,
-        topP: 0.95,
+        thinkingConfig: { thinkingBudget: 4000 }
       }
     });
     
-    return response.text?.trim() || "Sua jornada financeira começou oficialmente! Hoje você deu o primeiro passo para a clareza e liberdade.";
+    return response.text?.trim() || "A clareza é o fundamento da riqueza. Você acaba de transformar a névoa da incerteza em um mapa estratégico para o seu futuro.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Excelente começo! Você acaba de transformar incerteza em clareza. Esse é o fundamento de qualquer grande patrimônio.";
+    return "Excelente começo! Mapear seus recursos é o ato de coragem que separa os sonhadores dos realizadores de patrimônio.";
   }
 };
 
 export const getInvestmentOpportunityAdvice = async (stats: UserStats): Promise<string> => {
+  const ai = getAi();
   const totalWealth = (stats.accessibleMoney.bank1 || 0) + (stats.accessibleMoney.bank2 || 0) + (stats.accessibleMoney.physical || 0) +
                       (stats.investments.savings || 0) + (stats.investments.tesouro || 0) + (stats.investments.stocks || 0) + (stats.investments.others || 0);
   
   const prompt = `
-    Você é a Inteligência Artificial do PatrimônioPro. Analise a situação financeira e dê uma recomendação de alocação de ativos personalizada.
+    Analise como Inteligência Artificial Sênior. Forneça uma recomendação técnica rápida de alocação.
     
-    Situação Atual:
-    - Patrimônio Total: R$ ${totalWealth.toLocaleString('pt-BR')}
-    - Liquidez (Bancos/Dinheiro): R$ ${(stats.accessibleMoney.bank1 + stats.accessibleMoney.bank2 + stats.accessibleMoney.physical).toLocaleString('pt-BR')}
-    - Investimentos Atuais: R$ ${(stats.investments.savings + stats.investments.tesouro + stats.investments.stocks + stats.investments.others).toLocaleString('pt-BR')}
+    Cenário:
+    - Patrimônio: R$ ${totalWealth.toLocaleString('pt-BR')}
+    - Liquidez: R$ ${(stats.accessibleMoney.bank1 + stats.accessibleMoney.bank2 + stats.accessibleMoney.physical).toLocaleString('pt-BR')}
+    - Investido: R$ ${(stats.investments.savings + stats.investments.tesouro + stats.investments.stocks + stats.investments.others).toLocaleString('pt-BR')}
     
-    Tarefa:
-    Gere uma recomendação técnica porém simples de alocação para o capital disponível (ex: 70% em Tesouro Selic para reserva e 30% em FIIs para renda). 
-    Foque em como otimizar o que ele já tem. Seja direto e use no máximo 150 caracteres.
-    Não use introduções, vá direto ao ponto.
+    Recomende uma alocação otimizada em 150 caracteres. Seja direto e técnico.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
-        temperature: 0.7,
-        topP: 0.9,
+        thinkingConfig: { thinkingBudget: 2000 }
       }
     });
     
-    return response.text?.trim() || "Considere alocar 80% em Tesouro Selic para segurança e 20% em FIIs para renda mensal isenta.";
+    return response.text?.trim() || "Priorize 6 meses de reserva em Selic; excedente em FIIs e Ações de Valor para fluxo de caixa constante.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Sugerimos manter 70% em ativos de liquidez diária e 30% em dividendos para equilibrar risco e retorno.";
+    return "Sugerimos manter 70% em ativos de liquidez diária e 30% em ativos geradores de renda passiva.";
   }
 };
 
 export const getChallengeFeedback = async (choice: string, amount: number): Promise<string> => {
+  const ai = getAi();
   const prompt = `
-    Contexto: O usuário está em um desafio de investimento no app "PatrimônioPro".
-    Cenário: Ele recebeu R$ ${amount.toLocaleString('pt-BR')} extras e escolheu investir em: "${choice}".
-    
-    Tarefa: Explique em 2 frases POR QUE essa escolha é interessante ou quais cuidados ele deve ter, focando em EDUCAÇÃO FINANCEIRA.
-    Seja motivador e direto. Use tom amigável.
+    Usuário investiu R$ ${amount.toLocaleString('pt-BR')} em: "${choice}".
+    Explique o impacto técnico dessa decisão em 2 frases curtas e motivadoras.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: { temperature: 0.7 }
+      model: 'gemini-3-pro-preview',
+      contents: prompt
     });
-    return response.text?.trim() || "Boa escolha! Diversificar é a chave para proteger seu capital enquanto busca rentabilidade.";
+    return response.text?.trim() || "Decisão estratégica. Alocar recursos extras com foco em ativos produtivos acelera o efeito dos juros compostos.";
   } catch {
-    return "Excelente decisão! Alocar recursos com estratégia é o que separa poupadores de investidores de sucesso.";
+    return "Excelente decisão! Disciplina na alocação de aportes extraordinários é o que constrói grandes fortunas no longo prazo.";
   }
 };
