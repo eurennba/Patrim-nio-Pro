@@ -14,8 +14,11 @@ interface Props {
 }
 
 const Sidebar: React.FC<Props> = ({ user, onLogout, onStartTraining, theme, onThemeToggle, currentView, onViewChange }) => {
+  const isGuest = user.email === 'guest@patrimoniopro.com';
+
   return (
     <aside className="hidden md:flex flex-col w-72 bg-white dark:bg-black border-r border-slate-100 dark:border-white/10 h-screen sticky top-0 p-8 z-40 transition-colors duration-300">
+      
       {/* Logo Section */}
       <div 
         onClick={() => onViewChange('dashboard')}
@@ -33,13 +36,13 @@ const Sidebar: React.FC<Props> = ({ user, onLogout, onStartTraining, theme, onTh
 
       {/* Nav Section */}
       <nav className="flex-1 space-y-3">
-        <div className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em] mb-6 ml-4">Principais</div>
+        <div className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em] mb-6 ml-4">Centro de Comando</div>
         
         <button 
           onClick={() => onViewChange('dashboard')}
           className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group ${currentView === 'dashboard' ? 'bg-brand-500 dark:bg-white text-white dark:text-slate-900 shadow-xl shadow-brand-500/20 dark:shadow-none scale-[1.02]' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'}`}
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all ${currentView === 'dashboard' ? 'bg-white/20 dark:bg-slate-900/10' : 'bg-slate-50 dark:bg-white/5 group-hover:scale-110 group-hover:rotate-3'}`}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all ${currentView === 'dashboard' ? 'bg-white/20 dark:bg-slate-900/10' : 'bg-slate-50 dark:bg-white/5 group-hover:scale-110'}`}>
             🏠
           </div>
           <span className="font-bold text-sm">Dashboard</span>
@@ -49,27 +52,24 @@ const Sidebar: React.FC<Props> = ({ user, onLogout, onStartTraining, theme, onTh
           onClick={onStartTraining} 
           className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-all group"
         >
-          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-xl group-hover:scale-110 group-hover:-rotate-3 transition-all">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-xl group-hover:scale-110 transition-all">
             🏋️
           </div>
           <span className="font-bold text-sm">Treinar</span>
         </button>
-        
-        <button 
-          onClick={() => onViewChange('settings')}
-          className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group ${currentView === 'settings' ? 'bg-brand-500 dark:bg-white text-white dark:text-slate-900 shadow-xl shadow-brand-500/20 dark:shadow-none scale-[1.02]' : 'text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'}`}
-        >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all ${currentView === 'settings' ? 'bg-white/20 dark:bg-slate-900/10' : 'bg-slate-50 dark:bg-white/5 group-hover:scale-110 group-hover:rotate-3'}`}>
-            ⚙️
+
+        {isGuest && (
+          <div className="mx-4 mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+            <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-1">Modo Público</p>
+            <p className="text-[10px] text-slate-500 font-medium leading-tight">Crie uma conta para salvar seu progresso permanentemente.</p>
           </div>
-          <span className="font-bold text-sm">Configurações</span>
-        </button>
+        )}
       </nav>
 
-      {/* Theme & User & Footer Section */}
+      {/* Theme & User */}
       <div className="pt-8 border-t border-slate-100 dark:border-white/10 space-y-8">
         <div className="flex items-center justify-between px-4">
-          <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em]">Tema</span>
+          <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.25em]">Aparência</span>
           <button 
             onClick={onThemeToggle}
             className={`w-14 h-8 rounded-full relative p-1 transition-all flex items-center ${theme === 'dark' ? 'bg-brand-500' : 'bg-slate-100'}`}
@@ -82,25 +82,25 @@ const Sidebar: React.FC<Props> = ({ user, onLogout, onStartTraining, theme, onTh
 
         <div 
           onClick={() => onViewChange('settings')}
-          className="bg-slate-50 dark:bg-white/5 p-4 rounded-[2rem] border border-slate-100 dark:border-white/10 flex items-center gap-4 transition-all cursor-pointer hover:scale-[1.03] hover:shadow-lg active:scale-95 group"
+          className="bg-slate-50 dark:bg-white/5 p-4 rounded-[2rem] border border-slate-100 dark:border-white/10 flex items-center gap-4 transition-all cursor-pointer hover:scale-[1.03] active:scale-95 group"
         >
-          <div className="w-12 h-12 rounded-[1.2rem] bg-white dark:bg-black border border-slate-100 dark:border-white/10 overflow-hidden shrink-0 transition-all group-hover:shadow-inner">
+          <div className="w-12 h-12 rounded-[1.2rem] bg-white dark:bg-black border border-slate-100 dark:border-white/10 overflow-hidden shrink-0 transition-all">
             <img src={user.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt="Avatar" className="w-full h-full object-cover" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-black text-slate-900 dark:text-white truncate">{user.name}</p>
-            <p className="text-[9px] text-brand-500 font-black uppercase tracking-widest mt-0.5">Premium</p>
+            <p className="text-[9px] text-brand-500 font-black uppercase tracking-widest mt-0.5">{isGuest ? 'Demonstração' : 'Patrimônio PRO'}</p>
           </div>
         </div>
 
         <button 
           onClick={onLogout}
-          className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-400 dark:text-slate-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-500 transition-all group"
+          className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-400 dark:text-slate-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-500 transition-all"
         >
-          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-xl group-hover:scale-110 transition-all grayscale group-hover:grayscale-0">
+          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-xl transition-all">
             🚪
           </div>
-          <span className="font-bold text-sm">Encerrar Sessão</span>
+          <span className="font-bold text-sm">Sair do Site</span>
         </button>
       </div>
     </aside>

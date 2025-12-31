@@ -52,10 +52,9 @@ const AuthScreen: React.FC<Props> = ({ onAuthComplete, theme }) => {
         setError('Por favor, preencha todos os campos obrigatórios.');
         return;
       }
-      
       const existingUser = localStorage.getItem(`user_${email}`);
       if (existingUser) {
-        setError('Este e-mail já está cadastrado em nosso sistema.');
+        setError('Este e-mail já está cadastrado.');
         return;
       }
 
@@ -65,57 +64,22 @@ const AuthScreen: React.FC<Props> = ({ onAuthComplete, theme }) => {
         const newUser: UserAccount = { name, email, password, stats: INITIAL_STATS };
         localStorage.setItem(`user_${email}`, JSON.stringify(newUser));
         handlePersistence(email, password);
-        
-        if (sendEmailReport) {
-          setSuccess('Conta criada! Guia inicial enviado para seu e-mail. ✨');
-        } else {
-          setSuccess('Sua conta foi criada com sucesso! ✨');
-        }
-        
-        setTimeout(() => onAuthComplete(newUser), 1500);
+        onAuthComplete(newUser);
       }, 1200);
 
     } else if (step === 'LOGIN') {
       const savedUser = localStorage.getItem(`user_${email}`);
       if (!savedUser) {
-        setError('E-mail não encontrado. Verifique os dados ou cadastre-se.');
+        setError('E-mail não encontrado.');
         return;
       }
-      
       const user = JSON.parse(savedUser) as UserAccount;
       if (user.password !== password) {
-        setError('Senha incorreta para este usuário.');
+        setError('Senha incorreta.');
         return;
       }
-      
       handlePersistence(email, password);
       onAuthComplete(user);
-    } else if (step === 'RECOVERY') {
-      if (!email || !newEmail || !password) {
-        setError('Todos os campos são necessários para a recuperação.');
-        return;
-      }
-
-      const savedUser = localStorage.getItem(`user_${email}`);
-      if (!savedUser) {
-        setError('E-mail atual não localizado.');
-        return;
-      }
-
-      const user = JSON.parse(savedUser) as UserAccount;
-      user.email = newEmail;
-      user.password = password;
-
-      localStorage.setItem(`user_${newEmail}`, JSON.stringify(user));
-      if (email !== newEmail) localStorage.removeItem(`user_${email}`);
-
-      setSuccess('Credenciais atualizadas! Acesse agora. ✨');
-      setTimeout(() => {
-        setStep('LOGIN');
-        setEmail(newEmail);
-        setPassword('');
-        setSuccess('');
-      }, 2000);
     }
   };
 
@@ -123,7 +87,7 @@ const AuthScreen: React.FC<Props> = ({ onAuthComplete, theme }) => {
     setIsLoading(true);
     setTimeout(() => {
       const guestUser: UserAccount = {
-        name: 'Visitante',
+        name: 'Visitante Público',
         email: 'guest@patrimoniopro.com',
         stats: INITIAL_STATS
       };
@@ -134,8 +98,7 @@ const AuthScreen: React.FC<Props> = ({ onAuthComplete, theme }) => {
   const handleKeyConfig = async () => {
     if (window.aistudio && window.aistudio.openSelectKey) {
       await window.aistudio.openSelectKey();
-      setSuccess('Chave de acesso vinculada com sucesso. ✨');
-      setTimeout(() => setSuccess(''), 3000);
+      setSuccess('Conexão estabelecida. ✨');
     }
   };
 
@@ -148,213 +111,154 @@ const AuthScreen: React.FC<Props> = ({ onAuthComplete, theme }) => {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-6 transition-colors duration-500 ${theme === 'dark' ? 'bg-black' : 'bg-slate-50 bg-[radial-gradient(circle_at_top_right,_#fffbeb,_#f8fafc)]'}`}>
-      <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-700">
+    <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-all duration-700 ${theme === 'dark' ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'}`}>
+      
+      {/* Dynamic Background Element */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-1/4 -right-1/4 w-[600px] h-[600px] bg-brand-500/10 blur-[150px] rounded-full animate-pulse-slow" />
+        <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-brand-400/10 blur-[150px] rounded-full animate-float" />
+      </div>
+
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center z-10">
         
-        {/* Brand Header */}
-        <div className="text-center mb-8 group">
-          <div className="inline-flex p-5 bg-white dark:bg-white/5 rounded-[2.5rem] shadow-2xl mb-6 border border-amber-50 dark:border-white/10 transition-all duration-500 group-hover:shadow-amber-500/20 group-hover:-translate-y-1">
+        {/* Left: Value Proposition (Landing Page Style) */}
+        <div className="space-y-10 text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-1000">
+          <div className="inline-flex p-4 bg-white dark:bg-white/5 rounded-3xl shadow-2xl border border-brand-500/20 mb-4 transform hover:rotate-3 transition-transform">
             {LOGO_ICON}
           </div>
-          <div className="flex flex-col items-center">
-            <span className="text-xl font-medium text-slate-500 dark:text-slate-400 tracking-wide leading-none mb-1">Patrimônio</span>
-            <h1 className="text-5xl font-black italic text-amber-500 tracking-tighter leading-none">PRO</h1>
+          
+          <div className="space-y-4">
+            <h2 className="text-sm font-black text-brand-500 uppercase tracking-[0.4em]">Plataforma de Elite</h2>
+            <h1 className="text-6xl md:text-7xl font-black tracking-tighter leading-[0.9] lg:max-w-md">
+              Domine seu <span className="text-brand-500 italic">Futuro</span> Financeiro.
+            </h1>
+            <p className="text-xl text-slate-500 dark:text-slate-400 font-medium max-w-lg mx-auto lg:mx-0 leading-relaxed">
+              A ferramenta definitiva para quem busca clareza absoluta sobre o patrimônio. Inteligência artificial local para sua soberania total.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <button 
+              onClick={handleGuestAccess}
+              className="px-10 py-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-3xl shadow-2xl hover:scale-105 active:scale-95 transition-all text-lg group"
+            >
+              Começar Agora (Grátis)
+              <span className="inline-block ml-3 group-hover:translate-x-2 transition-transform">→</span>
+            </button>
+            <button 
+              onClick={handleKeyConfig}
+              className="px-8 py-6 bg-white dark:bg-white/5 border-2 border-slate-100 dark:border-white/10 text-slate-900 dark:text-white font-black rounded-3xl hover:bg-slate-50 dark:hover:bg-white/10 transition-all text-lg"
+            >
+              Configurar Acesso IA
+            </button>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="pt-10 flex items-center justify-center lg:justify-start gap-8 opacity-40 grayscale group-hover:grayscale-0 transition-all">
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="text-2xl">🔒</span>
+              <span className="text-[10px] font-black uppercase tracking-widest mt-2">100% Local-First</span>
+            </div>
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="text-2xl">⚡</span>
+              <span className="text-[10px] font-black uppercase tracking-widest mt-2">Resposta Real-Time</span>
+            </div>
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="text-2xl">💎</span>
+              <span className="text-[10px] font-black uppercase tracking-widest mt-2">Qualidade Premium</span>
+            </div>
           </div>
         </div>
 
-        {/* Main Card */}
-        <div className="bg-white dark:bg-white/5 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.12)] dark:shadow-none border border-slate-100 dark:border-white/10 overflow-hidden transition-all duration-300">
-          
-          <div className="relative">
-            {step !== 'RECOVERY' ? (
-              <div className="flex bg-slate-50/50 dark:bg-white/5 h-16 relative">
-                <button 
-                  onClick={() => { setStep('LOGIN'); setError(''); setSuccess(''); }}
-                  className={`flex-1 font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 relative z-10 ${step === 'LOGIN' ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-white/20'}`}
-                >
-                  Entrar
-                </button>
-                <button 
-                  onClick={() => { setStep('REGISTER'); setError(''); setSuccess(''); }}
-                  className={`flex-1 font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 relative z-10 ${step === 'REGISTER' ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-white/20'}`}
-                >
-                  Cadastrar
-                </button>
-                
-                <div 
-                  className="absolute bottom-0 h-1 bg-amber-500 transition-all duration-500 ease-[cubic-bezier(0.68,-0.6,0.32,1.6)]"
-                  style={{ 
-                    width: '50%', 
-                    left: step === 'LOGIN' ? '0%' : '50%',
-                    boxShadow: '0 0 15px rgba(245, 158, 11, 0.6)'
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="bg-amber-500/10 dark:bg-amber-500/5 h-16 flex items-center justify-center border-b border-amber-500/20">
-                <h2 className="text-amber-600 dark:text-amber-500 font-black text-[10px] uppercase tracking-[0.3em]">Recuperação de Acesso</h2>
-              </div>
-            )}
-          </div>
+        {/* Right: Authentication Card */}
+        <div className="w-full max-w-md mx-auto animate-in fade-in zoom-in-95 duration-700">
+          <div className="bg-white dark:bg-white/5 rounded-[3.5rem] shadow-[0_40px_100px_-15px_rgba(0,0,0,0.15)] dark:shadow-none border border-slate-100 dark:border-white/10 overflow-hidden relative">
+            
+            {/* Tabs */}
+            <div className="flex bg-slate-50/50 dark:bg-white/5 h-20 border-b border-slate-100 dark:border-white/5">
+              <button 
+                onClick={() => setStep('LOGIN')}
+                className={`flex-1 font-black text-[10px] uppercase tracking-[0.3em] transition-all ${step === 'LOGIN' ? 'text-slate-900 dark:text-white bg-white dark:bg-transparent' : 'text-slate-400 dark:text-white/20'}`}
+              >
+                Entrar
+              </button>
+              <button 
+                onClick={() => setStep('REGISTER')}
+                className={`flex-1 font-black text-[10px] uppercase tracking-[0.3em] transition-all ${step === 'REGISTER' ? 'text-slate-900 dark:text-white bg-white dark:bg-transparent' : 'text-slate-400 dark:text-white/20'}`}
+              >
+                Criar Perfil
+              </button>
+            </div>
 
-          <div className="p-8 md:p-10">
-            <form onSubmit={handleAuthSubmit} className="space-y-6">
-              
-              <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                
-                {step === 'REGISTER' && (
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest ml-1">Seu Nome</label>
-                    <div className="group relative">
-                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-lg opacity-40 group-focus-within:opacity-100 transition-opacity">👤</span>
+            <div className="p-10">
+              <form onSubmit={handleAuthSubmit} className="space-y-6">
+                <div className="space-y-5">
+                  
+                  {step === 'REGISTER' && (
+                    <div className="group">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block group-focus-within:text-brand-500 transition-colors">Seu Nome</label>
                       <input 
                         type="text" 
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full p-4 pl-14 bg-slate-50 dark:bg-black border-2 border-slate-50 dark:border-white/5 rounded-2xl focus:border-amber-500 focus:bg-white dark:focus:bg-black outline-none font-bold text-slate-900 dark:text-white transition-all shadow-inner"
-                        placeholder="Como deseja ser chamado?"
+                        className="w-full p-5 bg-slate-50 dark:bg-black border-2 border-slate-50 dark:border-white/5 rounded-2xl focus:border-brand-500 focus:bg-white dark:focus:bg-black outline-none font-bold text-slate-900 dark:text-white transition-all shadow-inner"
+                        placeholder="Ex: João Silva"
                       />
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest ml-1">
-                    {step === 'RECOVERY' ? 'E-mail cadastrado' : 'E-mail'}
-                  </label>
-                  <div className="group relative">
-                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-lg opacity-40 group-focus-within:opacity-100 transition-opacity">✉️</span>
+                  <div className="group">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block group-focus-within:text-brand-500 transition-colors">E-mail de Acesso</label>
                     <input 
                       type="email" 
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full p-4 pl-14 bg-slate-50 dark:bg-black border-2 border-slate-50 dark:border-white/5 rounded-2xl focus:border-amber-500 focus:bg-white dark:focus:bg-black outline-none font-bold text-slate-900 dark:text-white transition-all shadow-inner"
-                      placeholder="seu@email.com.br"
+                      className="w-full p-5 bg-slate-50 dark:bg-black border-2 border-slate-50 dark:border-white/5 rounded-2xl focus:border-brand-500 focus:bg-white dark:focus:bg-black outline-none font-bold text-slate-900 dark:text-white transition-all shadow-inner"
+                      placeholder="seu@email.com"
                     />
                   </div>
-                </div>
 
-                {step === 'RECOVERY' && (
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest ml-1">Novo E-mail</label>
-                    <div className="group relative">
-                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-lg opacity-40 group-focus-within:opacity-100 transition-opacity">🔄</span>
-                      <input 
-                        type="email" 
-                        required
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        className="w-full p-4 pl-14 bg-slate-50 dark:bg-black border-2 border-slate-50 dark:border-white/5 rounded-2xl focus:border-amber-500 focus:bg-white dark:focus:bg-black outline-none font-bold text-slate-900 dark:text-white transition-all shadow-inner"
-                        placeholder="novo@email.com.br"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center ml-1">
-                    <label className="text-[10px] font-black text-slate-400 dark:text-white/40 uppercase tracking-widest">Senha</label>
-                    {step === 'LOGIN' && (
-                      <button 
-                        type="button" 
-                        onClick={() => { setStep('RECOVERY'); setError(''); }}
-                        className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest hover:underline transition-all"
-                      >
-                        Esqueci?
-                      </button>
-                    )}
-                  </div>
-                  <div className="group relative">
-                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-lg opacity-40 group-focus-within:opacity-100 transition-opacity">🔑</span>
+                  <div className="group">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block group-focus-within:text-brand-500 transition-colors">Senha Secreta</label>
                     <input 
                       type="password" 
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-4 pl-14 bg-slate-50 dark:bg-black border-2 border-slate-50 dark:border-white/5 rounded-2xl focus:border-amber-500 focus:bg-white dark:focus:bg-black outline-none font-bold text-slate-900 dark:text-white transition-all shadow-inner"
+                      className="w-full p-5 bg-slate-50 dark:bg-black border-2 border-slate-50 dark:border-white/5 rounded-2xl focus:border-brand-500 focus:bg-white dark:focus:bg-black outline-none font-bold text-slate-900 dark:text-white transition-all shadow-inner"
                       placeholder="••••••••"
                     />
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 ml-1">
-                  <div className="flex items-center gap-3">
-                    <button 
-                      type="button"
-                      onClick={() => setRememberMe(!rememberMe)}
-                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${rememberMe ? 'bg-amber-500 border-amber-500 text-slate-900' : 'bg-transparent border-slate-200 dark:border-white/10'}`}
-                    >
-                      {rememberMe && <span className="text-[10px] font-black">✓</span>}
-                    </button>
-                    <span onClick={() => setRememberMe(!rememberMe)} className="text-[10px] font-bold text-slate-400 dark:text-white/30 cursor-pointer">Manter conectado</span>
-                  </div>
+                {error && <div className="text-rose-500 text-[10px] font-black bg-rose-50 dark:bg-rose-950/20 p-4 rounded-xl border border-rose-100 animate-pulse">{error}</div>}
+                {success && <div className="text-emerald-500 text-[10px] font-black bg-emerald-50 p-4 rounded-xl border border-emerald-100">{success}</div>}
 
-                  {step === 'REGISTER' && (
-                    <div className="flex items-center gap-3">
-                      <button 
-                        type="button"
-                        onClick={() => setSendEmailReport(!sendEmailReport)}
-                        className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${sendEmailReport ? 'bg-amber-500 border-amber-500 text-slate-900' : 'bg-transparent border-slate-200 dark:border-white/10'}`}
-                      >
-                        {sendEmailReport && <span className="text-[10px] font-black">✓</span>}
-                      </button>
-                      <span onClick={() => setSendEmailReport(!sendEmailReport)} className="text-[10px] font-bold text-slate-400 dark:text-white/30 cursor-pointer">Receber guia inicial por e-mail</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {error && <div className="text-rose-500 text-[10px] font-bold bg-rose-50 dark:bg-rose-950/30 p-3 rounded-xl border border-rose-100 dark:border-rose-900/20">{error}</div>}
-              {success && <div className="text-emerald-600 text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/20">{success}</div>}
-
-              <div className="space-y-3">
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-black py-4 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                  className="w-full bg-brand-500 hover:bg-brand-600 text-slate-900 font-black py-5 rounded-3xl shadow-2xl transition-all active:scale-95 disabled:opacity-50 text-lg"
                 >
-                  {isLoading ? <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div> : 'Acessar Conta'}
+                  {isLoading ? 'Conectando...' : step === 'LOGIN' ? 'Acessar Plataforma' : 'Finalizar Cadastro'}
                 </button>
+              </form>
 
-                {step === 'LOGIN' && (
-                  <button 
-                    type="button"
-                    onClick={handleGuestAccess}
-                    className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95"
-                  >
-                    Entrar como Visitante
-                  </button>
-                )}
+              <div className="mt-10 pt-8 border-t border-slate-50 dark:border-white/5 text-center">
+                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.3em] mb-2">Tecnologia de Inteligência Patrimonial</p>
+                <p className="text-[9px] text-slate-400 dark:text-white/20 leading-relaxed max-w-xs mx-auto">
+                  Ambiente de alta segurança com arquitetura local-first. Suas diretrizes financeiras permanecem sob sua soberania exclusiva.
+                </p>
               </div>
-
-              <div className="flex flex-col items-center gap-4 mt-6">
-                <button 
-                  type="button"
-                  onClick={handleKeyConfig}
-                  className="text-[9px] font-black text-slate-400 dark:text-white/30 uppercase tracking-widest hover:text-amber-500 transition-colors flex items-center gap-2"
-                >
-                  <span>⚙️</span> Configurar Chave de Acesso Pública
-                </button>
-                
-                {step === 'RECOVERY' && (
-                  <button type="button" onClick={() => setStep('LOGIN')} className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Voltar ao Login</button>
-                )}
-              </div>
-            </form>
-
-            <div className="mt-8 pt-8 border-t border-slate-50 dark:border-white/5">
-              <p className="text-center text-slate-900 dark:text-white text-[10px] font-black leading-relaxed tracking-[0.25em] uppercase mb-1">
-                Tecnologia de Inteligência Patrimonial
-              </p>
-              <p className="text-center text-slate-400 dark:text-white/20 text-[9px] font-medium leading-relaxed tracking-wide">
-                Acesso universal com arquitetura local-first. <br/>
-                Privacidade total para qualquer pessoa em qualquer dispositivo.
-              </p>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Footer / Scroll Hint */}
+      <div className="mt-16 animate-scroll-down opacity-30 hidden lg:block">
+        <span className="text-2xl">🖱️</span>
       </div>
     </div>
   );

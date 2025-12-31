@@ -4,7 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PatrimônioPro - Seu Treino Financeiro</title>
+    <title>PatrimônioPro - Inteligência Financeira e Gestão de Patrimônio</title>
+    
+    <!-- SEO & Social Sharing -->
+    <meta name="description" content="Transforme seu medo financeiro em clareza absoluta. Treinos de 15 minutos e monitoramento de patrimônio com inteligência artificial.">
+    <meta property="og:title" content="PatrimônioPro - Sua Soberania Financeira">
+    <meta property="og:description" content="Acesse agora a plataforma de inteligência patrimonial local-first.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
@@ -22,23 +30,27 @@
                             200: '#fde68a',
                             300: '#fcd34d',
                             400: '#fbbf24',
-                            500: '#f59e0b', // Vibrant Amber
+                            500: '#f59e0b',
                             600: '#d97706',
                             700: '#b45309',
                             800: '#92400e',
                             900: '#78350f',
                             950: '#451a03',
-                        },
-                        success: '#10B981',
+                        }
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scroll-down': 'scroll-down 2s ease-in-out infinite',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'scroll-down': {
+                            '0%, 100%': { transform: 'translateY(0)', opacity: '0.3' },
+                            '50%': { transform: 'translateY(10px)', opacity: '1' },
                         }
                     }
                 }
@@ -51,19 +63,15 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        /* Custom scrollbar for a cleaner look */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #fde68a;
-            border-radius: 10px;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: #78350f;
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #fde68a; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #78350f; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 <script type="importmap">
@@ -77,7 +85,7 @@
 }
 </script>
 </head>
-<body class="transition-colors duration-500 overflow-x-hidden">
+<body class="transition-colors duration-500 overflow-x-hidden bg-slate-50 dark:bg-black">
     <div id="root"></div>
 </body>
 </html>
